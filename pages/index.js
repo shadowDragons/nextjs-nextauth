@@ -1,10 +1,31 @@
 import Head from "next/head";
 import Image from "next/image";
 import styles from "../styles/Home.module.css";
+import { useEffect, useState } from 'react';
 import { useSession, signIn, signOut } from "next-auth/react";
+
+
 
 export default function Home() {
   const { data: session } = useSession();
+
+  const [blogList, setBlogList] = useState([])
+  
+  useEffect(() => {
+    async function f() {
+       {
+        const response = await fetch("/api/hello")
+        if (response.status == 200) {
+          let rs = await response.json()
+          setBlogList(rs)
+        }
+      }
+    }
+    if (session) {
+      f()
+    }
+  }, [session])
+
   return (
     <div className={styles.container}>
       <Head>
@@ -26,40 +47,14 @@ export default function Home() {
           </div>
           <h1 className={styles.title}>My Blog</h1>
           <div className={styles.row}>
-            <div className={styles.blogCard}>
-              <Image
-                src="/Getting-Started-with-NextJS-Inside.jpeg"
-                alt="blog1"
-                width={300}
-                height={200}
-              />
-              <div className={styles.blogCardContent}>
-                <h2>Nexjs for Beginers</h2>
-                <p>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Quisquam, quidem.
-                </p>
-
-                <a href="/blog1">Read More</a>
+            {blogList.map(({ id, title, content }) => (
+              <div className={styles.blogCardContent} key={id}>
+                 <h2>{title}</h2>
+                 <p>
+                   {content}
+                 </p>
               </div>
-            </div>
-            <div className={styles.blogCard}>
-              <Image
-                src="/pasted image 0.png"
-                alt="blog1"
-                width={300}
-                height={200}
-              />
-              <div className={styles.blogCardContent}>
-                <h2>Django Full Course</h2>
-                <p>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Quisquam, quidem.
-                </p>
-
-                <a href="/blog1">Read More</a>
-              </div>
-            </div>
+            ))}
           </div>
         </main>
       )}
